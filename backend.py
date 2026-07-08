@@ -31,6 +31,10 @@ CRITICAL EVALUATION PROTOCOLS:
 2. DISCIPLINED VERDICT MATRIX: Classify content as LEGITIMATE/SAFE only if it is entirely free of high-pressure demands, unprompted links, or unsolicited 2FA codes. If it demands urgent billing updates via an immediate link or button, it is a phishing trap.
 3. If it matches a documented attack scenario in your database (e.g., tech support scam, fake bank hold, crypto extraction, courier fee trap), classify it as SCAM or PHISHING.
 
+CRITICAL INSTRUCTION FOR TWO-WAY FRAUD VERIFICATION MESSAGES:
+1. ANALYZE THE WORKFLOW: Look at the entire message history. If a text message asks "Did you attempt a charge? Reply YES or NO", and the user explicitly replied "YES" to confirm they made the purchase, you MUST classify the verdict as LEGITIMATE / SAFE. 
+2. EVALUATE PRIVACY CONSTRAINTS: Do not penalize automated fraud short-codes for lack of personalization. Legitimate banks omit full names or full card numbers in text messages due to strict privacy and data compliance laws.
+3. IDENTIFY CORE PHISHING HALlMARKS: A message is only phishing if it demands a payment transfer, threatens instant police action, or forces the user to click an unverified outbound web hyperlink. A simple "Reply YES/NO" verification text with NO hyperlinks is safe.
 Database Context:
 {context}
 
