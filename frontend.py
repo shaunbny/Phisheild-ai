@@ -755,11 +755,11 @@ footer.svelte-zxu34v,
 ::-webkit-scrollbar-thumb:hover { background: #22c55e !important; }
 """
 
-with gr.Blocks(title="PhishShield AI", theme=gr.themes.Base(), css=custom_css) as demo:
+with gr.Blocks(title="PhiShield AI", theme=gr.themes.Base(), css=custom_css) as demo:
     with gr.Column(elem_classes="main-panel"):
         gr.HTML("""
             <div class="main-header">
-                <span class="main-header-title">PhishShield AI</span>
+                <span class="main-header-title">PhiShield AI</span>
             </div>
         """)
 
