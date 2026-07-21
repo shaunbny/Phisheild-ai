@@ -23,28 +23,39 @@ app = FastAPI(title="PhishShield AI Core Engine")
 # 2. Configure Balanced Cybersecurity RAG System Prompt
 # ─── THE FINAL ACCURATE CYBERSECURITY PROMPT ───
 prompt = ChatPromptTemplate.from_template(
-    """You are an elite, objective, and deeply analytical cybersecurity incident advisor. 
-Analyze the user's suspicious content using the verified threat database below.
+    """You are an elite, OBJECTIVE, and deeply analytical cybersecurity advisor.
+Your job is to ACCURATELY classify user content as either SAFE or DANGEROUS. You must NOT assume the content is malicious. Evaluate it fairly.
 
-CRITICAL EVALUATION PROTOCOLS:
-1. MAJOR BRAND RULE: Global brands (such as Netflix, Amazon, Google, Microsoft, or major banks) use perfect, automated system templates. If an incoming message claims to be from a major brand but uses generic greetings (like "Hi Dear", "Dear Customer"), contains grammar/spelling errors, or uses informal phrasing (like "Your friends at Netflix"), you must immediately classify it as a SCAM / PHISHING attempt. Major brands never communicate this way.
-2. DISCIPLINED VERDICT MATRIX: Classify content as LEGITIMATE/SAFE only if it is entirely free of high-pressure demands, unprompted links, or unsolicited 2FA codes. If it demands urgent billing updates via an immediate link or button, it is a phishing trap.
-3. If it matches a documented attack scenario in your database (e.g., tech support scam, fake bank hold, crypto extraction, courier fee trap), classify it as SCAM or PHISHING.
+CRITICAL EVALUATION PROTOCOL — FOLLOW THIS EXACT ORDER:
 
-CRITICAL INSTRUCTION FOR TWO-WAY FRAUD VERIFICATION MESSAGES:
-1. ANALYZE THE WORKFLOW: Look at the entire message history. If a text message asks "Did you attempt a charge? Reply YES or NO", and the user explicitly replied "YES" to confirm they made the purchase, you MUST classify the verdict as LEGITIMATE / SAFE. 
-2. EVALUATE PRIVACY CONSTRAINTS: Do not penalize automated fraud short-codes for lack of personalization. Legitimate banks omit full names or full card numbers in text messages due to strict privacy and data compliance laws.
-3. IDENTIFY CORE PHISHING HALlMARKS: A message is only phishing if it demands a payment transfer, threatens instant police action, or forces the user to click an unverified outbound web hyperlink. A simple "Reply YES/NO" verification text with NO hyperlinks is safe.
+STEP 1 — LEGITIMACY-FIRST CHECK (do this BEFORE looking for threats):
+  - Is this a normal notification, order confirmation, shipping update, OTP, account statement, app alert, system message, newsletter, or routine business email?
+  - Does it come from a verified/official sender with no suspicious indicators?
+  - Is this a standard two-factor authentication code, delivery update, or purchase receipt?
+  - If YES to any of the above → classify as [Legitimate/Safe] immediately. Do NOT look for threat matches.
+
+STEP 2 — ONLY if Step 1 did NOT classify it as safe, check for threats:
+  a) MAJOR BRAND RULE: If content claims to be from a global brand (Netflix, Amazon, Google, banks) but uses generic greetings ("Hi Dear"), grammar errors, or informal phrasing → classify as [Scam/Phishing].
+  b) URGENCY + LINK TRAP: If it demands urgent action (account suspended, billing update) AND includes a suspicious link → classify as [Phishing].
+  c) PAYMENT DEMAND: If it asks for money transfers, advance fees, ransom, or "safe escrow" payments → classify as [Scam].
+  d) PERSONAL DATA REQUEST: If it asks for passwords, OTPs, PINs, card numbers, or bank credentials → classify as [Phishing].
+  e) DATABASE MATCH: If it closely matches a documented attack pattern from the Database Context below → classify accordingly.
+
+STEP 3 — CONTEXT RELEVANCE GATE:
+  - The Database Context below contains known threat patterns. ONLY use it if the content genuinely matches a described attack scenario.
+  - If the Database Context is UNRELATED to the user's content, COMPLETELY IGNORE it. Do NOT force a match.
+  - Many normal messages (receipts, OTPs, app notifications) will retrieve threat context by coincidence — you must NOT let irrelevant context bias your verdict.
+
 Database Context:
 {context}
 
-Suspicious User Content to Analyze: {question}
+User Content to Analyze: {question}
 
-Provide a structured response using clear markdown fields:
-1. VERDICT: State clearly if it is a [Scam], [Phishing], or [Legitimate/Safe Alert] along with the calculated threat category.
-2. THREAT REASONING: Explain your objective breakdown. Highlight the specific markers (like generic greetings, forced urgency, informal sign-offs, or suspicious links) that indicate an attack.
-3. ACTION STEPS: Give the user clear, prioritized steps on what to do right now (e.g., do NOT click links; log in natively via the official website to check status).
-4. HELP PORTAL: Provide the official reporting channels or corporate safety links mentioned in the context (e.g., cybercrime.gov.in).
+Provide a structured, CONCISE response (max 2-3 sentences per section):
+1. VERDICT: [Scam], [Phishing], or [Legitimate/Safe] — along with the threat category if dangerous, or "No Threat Detected" if safe.
+2. THREAT REASONING: Explain your objective breakdown. If safe, explain WHY it is safe. If dangerous, highlight the specific attack markers.
+3. ACTION STEPS: 1-2 prioritized steps (for safe content: "No action needed" or general safety tips).
+4. HELP PORTAL: Provide official reporting channels if dangerous, or the sender's official support page if safe.
 
 Answer:"""
 )
@@ -54,8 +65,20 @@ Answer:"""
 def format_docs(docs):
     return "\n\n".join(d.page_content for d in docs)
 
+def relevance_filtered_retrieval(query):
+    """Only include threat database context if it is actually relevant to the query.
+    Uses FAISS similarity scores — lower score = more similar.
+    If the best match score is too high (i.e., not relevant), return no context."""
+    docs_with_scores = store.similarity_search_with_score(query, k=2)
+    RELEVANCE_THRESHOLD = 1.35  # FAISS L2 distance; lower = more relevant
+    relevant_docs = [doc for doc, score in docs_with_scores if score < RELEVANCE_THRESHOLD]
+    if not relevant_docs:
+        return "No closely matching threat patterns found in the database. Evaluate based on your own expertise."
+    return format_docs(relevant_docs)
+
 # Global tracking placeholder definition to prevent structural scope errors
 rag_chain = None
+store = None
 
 # 3. Establish Vector Database Retrieval Brain
 try:
@@ -66,16 +89,14 @@ try:
     chunks = splitter.split_documents(documents)
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     store = FAISS.from_documents(chunks, embeddings)
-    retriever = store.as_retriever(search_kwargs={"k": 2})
     llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
     
-    # Unified chain pipeline configuration
+    # Unified chain pipeline with relevance-filtered retrieval
     rag_chain = (
-        {"context": retriever | format_docs, "question": RunnablePassthrough()}
-
+        {"context": relevance_filtered_retrieval, "question": RunnablePassthrough()}
         | prompt | llm | StrOutputParser()
     )
-    print("💡 SUCCESS: Balanced RAG core pipeline built successfully!")
+    print("SUCCESS: Balanced RAG core pipeline built successfully!")
 except Exception as e:
     print(f"CRITICAL: Failed to initialize RAG core dependencies: {str(e)}")
 

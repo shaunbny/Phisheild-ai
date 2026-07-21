@@ -1,6 +1,179 @@
-<img width="946" height="815" alt="IMG-20260701-WA0029" src="https://github.com/user-attachments/assets/bb2cc0d8-8c34-4099-aa70-48bc00d587dc" />
-<img width="1008" height="933" alt="IMG-20260701-WA0027" src="https://github.com/user-attachments/assets/977d20f3-e161-4cfa-aa8f-1479cc58082b" />
-<img width="773" height="434" alt="Screenshot 2026-06-30 101228" src="https://github.com/user-attachments/assets/05cd6ae1-47e1-43a6-9575-737871f45c7f" />
-<img width="771" height="439" alt="Screenshot 2026-07-08 180431" src="https://github.com/user-attachments/assets/c1e73601-4891-47f8-9e99-f9e08a039ea5" />
-<img width="738" height="433" alt="Screenshot 2026-07-08 181745" src="https://github.com/user-attachments/assets/a5d3ed01-2a9e-4631-83b2-378f6470977c" />
+# 🚀 Getting Started
 
+## Prerequisites
+
+Before running the project, ensure you have installed:
+
+- Python 3.10 or later
+- Git
+- Tesseract OCR
+
+### Install Tesseract OCR
+
+**Windows**
+
+Download and install from:
+
+https://github.com/UB-Mannheim/tesseract/wiki
+
+After installation, update the path in `frontend.py` if necessary:
+
+```python
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+```
+
+For Linux:
+
+```bash
+sudo apt update
+sudo apt install tesseract-ocr
+```
+
+For macOS:
+
+```bash
+brew install tesseract
+```
+
+---
+
+# 📥 Clone the Repository
+
+```bash
+git clone https://github.com/shaunbny/PhishShield-AI.git
+
+cd PhishShield-AI
+```
+
+---
+
+# 🐍 Create a Virtual Environment
+
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Linux/macOS
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+# 📦 Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+If a `requirements.txt` file is not available, install the required packages manually:
+
+```bash
+pip install fastapi uvicorn gradio requests pillow pytesseract python-dotenv groq langchain langchain-core langchain-community langchain-huggingface langchain-text-splitters langchain-groq faiss-cpu sentence-transformers
+```
+
+---
+
+# 🔑 Configure Environment Variables
+
+Create a file named `.env` in the project root.
+
+```env
+GROQ_API_KEY=YOUR_GROQ_API_KEY
+BACKEND_URL=http://127.0.0.1:8000/api/analyze
+```
+
+You can obtain a free Groq API key from:
+
+https://console.groq.com/keys
+
+---
+
+# ▶ Running the Application
+
+## Step 1 — Start the Backend
+
+Open a terminal inside the project folder.
+
+```bash
+python backend.py
+```
+
+If successful, you should see something similar to:
+
+```
+SUCCESS: Balanced RAG core pipeline built successfully!
+
+Uvicorn running on http://127.0.0.1:8000
+```
+
+Leave this terminal running.
+
+---
+
+## Step 2 — Start the Frontend
+
+Open another terminal.
+
+Navigate to the project folder.
+
+Activate the virtual environment again if necessary.
+
+Run:
+
+```bash
+python frontend.py
+```
+
+The application will launch at:
+
+```
+http://127.0.0.1:7860
+```
+
+Open the URL in your browser.
+
+---
+
+# 🧪 Using PhishShield AI
+
+The application accepts multiple input types:
+
+- Paste suspicious URLs
+- Paste email or SMS text
+- Upload screenshots for OCR analysis
+- Upload or record voice notes
+
+Click **Analyze Security Legitimacy** to receive:
+
+- Threat classification
+- AI reasoning
+- Recommended actions
+- Official reporting channels
+
+---
+
+# 🛑 Stopping the Application
+
+To stop the application, press:
+
+```
+CTRL + C
+```
+
+in both terminal windows.
+
+---
+
+# 🔄 Updating the Project
+
+```bash
+git pull
+
+pip install -r requirements.txt
+```
