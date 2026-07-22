@@ -5,7 +5,7 @@
 
 <img width="653" height="318" alt="V1" src="https://github.com/user-attachments/assets/fde887c1-538d-4be2-ac71-c3fc23f24bfb" />
 
-<img width="645" height="383" alt="scam" src="https://github.com/user-attachments/assets/8e4cb699-ce9c-48a2-9a3b-a4a4328fdeb0" />
+<img width="614" height="435" alt="V2" src="https://github.com/user-attachments/assets/3986d550-d841-4d04-b294-d74b256d0100" />
 
 # 🚀 Getting Started
 
