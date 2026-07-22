@@ -50,7 +50,7 @@ brew install tesseract
 # 📥 Clone the Repository
 
 ```bash
-git clone https://github.com/shaunbny/PhishShield-AI.git
+git clone https://github.com/shaunbny/PhiShield-ai.git
 
 cd PhishShield-AI
 ```
